@@ -12,6 +12,7 @@ export default function Profile() {
   const [user, setUser] = useState({});
   const username = useParams().username;
 
+
   useEffect(() => {
     const fetchUser = async () => {
       const res = await axios.get(`/users?username=${username}`);
@@ -50,6 +51,7 @@ export default function Profile() {
             <div className="profileInfo">
               <h4 className="profileInfoName">{user.username}</h4>
               <span className="profileInfoDesc">{user.desc}</span>
+              <div className="profileInfoId">{user._id}</div> {/* add this line */}
             </div>
           </div>
           <div className="profileRightBottom">

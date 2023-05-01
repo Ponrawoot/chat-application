@@ -9,12 +9,18 @@ export default function Login() {
   const password = useRef();
   const { isFetching, dispatch } = useContext(AuthContext);
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
     e.preventDefault();
-    loginCall(
-      { email: email.current.value, password: password.current.value },
-      dispatch
-    );
+    try {
+      const userData = await loginCall(
+        { email: email.current.value, password: password.current.value },
+        dispatch
+      );
+      localStorage.setItem("user", JSON.stringify(userData.user)); // store the user object in local storage
+      localStorage.setItem("userId", userData._id); // store the user id in local storage
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
