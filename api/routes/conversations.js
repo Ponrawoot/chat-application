@@ -37,6 +37,7 @@ router.get("/find/:firstUserId/:secondUserId", async (req, res) => {
   try {
     const conversation = await Conversation.findOne({
       members: { $all: [req.params.firstUserId, req.params.secondUserId] },
+      conversationType : "direct"
     });
     res.status(200).json(conversation)
   } catch (err) {
