@@ -1,6 +1,7 @@
 import "./messenger.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from 'react-router-dom'
 
 export default function Chat() {
   const [users, setUsers] = useState([]);
@@ -160,14 +161,15 @@ export default function Chat() {
           Username is : {user.username} <br />
           User ID is : {user._id}
         </div>
-        <input
+        {/* <input
           className="input"
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-        />
-        <button onClick={addGroup}>New Group</button>
-        <tr className="groupChatList">
+        /> */}
+        <button><a href="http://localhost:3000/">View Chat Group</a></button>
+        {/* <button onClick={addGroup}>New Group</button> */}
+        {/* <tr className="groupChatList">
           <td className="rectangle">Group 21</td>
           <td className="rectangle">GG</td>
           {groups.map((groups) => (
@@ -175,7 +177,7 @@ export default function Chat() {
               {groups.name}
             </td>
           ))}
-        </tr>
+        </tr> */}
       </div>
     </div>
   );
