@@ -30,27 +30,28 @@ export default function Chat() {
   const addGroup = () => {
     const newGroup = {
       id: groups.length + 1,
-      name: inputValue
+      name: inputValue,
     };
     setGroups([...groups, newGroup]);
-    setInputValue('');
-  }
+    setInputValue("");
+  };
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
-  }
-  
+  };
 
   const handleUserClick = async (selectedUser) => {
     setSelectedUser(selectedUser);
     try {
-      const res = await axios.get(`/conversations/find/${user._id}/${selectedUser._id}`);
+      const res = await axios.get(
+        `/conversations/find/${user._id}/${selectedUser._id}`
+      );
       if (res.data) {
         setConversationId(res.data._id);
       } else {
         const newConversationRes = await axios.post("/conversations/direct", {
           senderId: user._id,
-          receiverId: selectedUser._id
+          receiverId: selectedUser._id,
         });
         setConversationId(newConversationRes.data._id);
       }
@@ -58,7 +59,6 @@ export default function Chat() {
       console.log(err);
     }
   };
-
 
   return (
     <div className="chat">
@@ -69,7 +69,9 @@ export default function Chat() {
             .filter((u) => u._id !== user._id)
             .map((u) => (
               <div
-                className={`chatMenuFriend ${selectedUser === u ? "active" : ""}`}
+                className={`chatMenuFriend ${
+                  selectedUser === u ? "active" : ""
+                }`}
                 key={u._id}
                 onClick={() => handleUserClick(u)}
               >
@@ -90,20 +92,27 @@ export default function Chat() {
         )}
       </div>
       <div className="chatOnline">
-                <div>
+        <div>
           Username is : {user.username} <br />
           User ID is : {user._id}
         </div>
-      <input className="input" type="text" value={inputValue} onChange={handleInputChange}/>
+        <input
+          className="input"
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+        />
         <button onClick={addGroup}>New Group</button>
         <tr className="groupChatList">
           <td className="rectangle">Group 21</td>
           <td className="rectangle">GG</td>
-          {groups.map(groups => (
-          <td className="rectangle" key={groups.id}>{groups.name}</td>
-        ))}
+          {groups.map((groups) => (
+            <td className="rectangle" key={groups.id}>
+              {groups.name}
+            </td>
+          ))}
         </tr>
-        </div>
+      </div>
     </div>
   );
 }
