@@ -167,7 +167,7 @@ export default function Chat() {
           value={inputValue}
           onChange={handleInputChange}
         /> */}
-        <button><a href="http://localhost:3000/">View Chat Group</a></button>
+        <button><a href="http://localhost:4000/">View Chat Group</a></button>
         {/* <button onClick={addGroup}>New Group</button> */}
         {/* <tr className="groupChatList">
           <td className="rectangle">Group 21</td>
