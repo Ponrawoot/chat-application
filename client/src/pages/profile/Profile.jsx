@@ -1,5 +1,4 @@
 import "./profile.css";
-import Topbar from "../../components/topbar/Topbar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
@@ -30,15 +29,6 @@ export default function Profile() {
         <div className="profileRight">
           <div className="profileRightTop">
             <div className="profileCover">
-              <img
-                className="profileCoverImg"
-                src={
-                  user.coverPicture
-                    ? PF + user.coverPicture
-                    : PF + "person/noCover.png"
-                }
-                alt=""
-              />
               <img
                 className="profileUserImg"
                 src={
