@@ -2,6 +2,7 @@ import "./messenger.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
+import {Link} from "react-router-dom";
 
 export default function Chat() {
   const [users, setUsers] = useState([]);
@@ -29,6 +30,8 @@ export default function Chat() {
     fetchUsers();
   }, []);
 
+
+
   return (
     <div className="chat">
       <div className="chatMenu">
@@ -45,7 +48,11 @@ export default function Chat() {
       </div>
       <div className="chatBox">...</div>
       <div>{username}</div>
-      <div className="chatOnline">...</div>
+      <div className="chatOnline">
+        <button>
+        <Link to='/groupchat'>New room</Link>
+        </button>
+      </div>
     </div>
   );
 }
