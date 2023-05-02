@@ -17,7 +17,7 @@ export default function Profile() {
       const res = await axios.get(`/users?username=${username}`);
       setUser(res.data);
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("user", JSON.stringify(res.data));
       } else {
         console.log('localStorage is not supported');
       }
