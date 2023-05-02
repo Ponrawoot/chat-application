@@ -22,10 +22,27 @@ export default function Chat() {
       });
       setMessages([...messages, res.data]);
       setMessageInput("");
+      
+      // Update conversation ID
+      setConversationId(res.data.conversationId);
     } catch (err) {
       console.log(err);
     }
   };
+  
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      if (conversationId) {
+        try {
+          const res = await axios.get(`/messages/${conversationId}`);
+          setMessages(res.data);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [conversationId]);
   
   
 
@@ -75,11 +92,13 @@ export default function Chat() {
           receiverId: selectedUser._id,
         });
         setConversationId(newConversationRes.data._id);
+        setMessages([]); // Reset messages
       }
     } catch (err) {
       console.log(err);
     }
   };
+  
   
 
   return (
