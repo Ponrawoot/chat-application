@@ -16,12 +16,17 @@ export default function Login() {
         { email: email.current.value, password: password.current.value },
         dispatch
       );
-      localStorage.setItem("user", JSON.stringify(userData.user)); // store the user object in local storage
-      localStorage.setItem("userId", userData._id); // store the user id in local storage
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem("user", JSON.stringify(userData.user)); // store the user object in local storage
+        //localStorage.setItem("userId", userData._id); // store the user id in local storage
+      } else {
+        console.log('localStorage is not supported');
+      }
     } catch (err) {
       console.log(err);
     }
   };
+  
 
   return (
     <div className="login">

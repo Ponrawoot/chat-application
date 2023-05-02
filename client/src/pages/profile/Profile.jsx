@@ -12,11 +12,15 @@ export default function Profile() {
   const [user, setUser] = useState({});
   const username = useParams().username;
 
-
   useEffect(() => {
     const fetchUser = async () => {
       const res = await axios.get(`/users?username=${username}`);
       setUser(res.data);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem("user", JSON.stringify(user));
+      } else {
+        console.log('localStorage is not supported');
+      }
     };
     fetchUser();
   }, [username]);
