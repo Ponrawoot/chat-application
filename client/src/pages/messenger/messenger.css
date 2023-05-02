@@ -41,7 +41,8 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 .chatInput {

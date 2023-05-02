@@ -10,6 +10,24 @@ export default function Chat() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [conversationId, setConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
+
+
+  const sendMessage = async () => {
+    try {
+      const res = await axios.post("/messages", {
+        conversationId,
+        sender: user.username,
+        text: `${user.username}: ${messageInput}`,
+      });
+      setMessages([...messages, res.data]);
+      setMessageInput("");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  
+  
 
   useEffect(() => {
     const userFromStorage = JSON.parse(localStorage.getItem("user"));
@@ -107,8 +125,12 @@ export default function Chat() {
             className="input"
             type="text"
             placeholder="Type your message..."
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
           />
-          <button>Send</button>
+
+          <button onClick={sendMessage}>Send</button>
+
           </div>
       </div>
 
