@@ -5,18 +5,13 @@ import axios from "axios";
 export default function Chat() {
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
-  
   const [inputValue, setInputValue] = useState("");
-
-  const handleInputChange = (event) => {
-    setInputValue(event.target.value);
-  }
-
   const [user, setUser] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
 
   useEffect(() => {
     const userFromStorage = JSON.parse(localStorage.getItem("user"));
-    //console.log("User ID from storage:", userFromStorage._id);
     setUser(userFromStorage);
   }, []);
 
@@ -41,25 +36,64 @@ export default function Chat() {
     setInputValue('');
   }
 
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  }
+  
+
+  const handleUserClick = async (selectedUser) => {
+    setSelectedUser(selectedUser);
+    try {
+      const res = await axios.get(`/conversations/find/${user._id}/${selectedUser._id}`);
+      if (res.data) {
+        setConversationId(res.data._id);
+      } else {
+        const newConversationRes = await axios.post("/conversations/direct", {
+          senderId: user._id,
+          receiverId: selectedUser._id
+        });
+        setConversationId(newConversationRes.data._id);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+
   return (
     <div className="chat">
       <div className="chatMenu">
         <div className="chatMenuWrapper">
           <input placeholder="Search for friends" className="chatMenuInput" />
-          {users.map((u) => (
-            <div className="chatMenuFriend">
-              {/* <img className="chatMenuImg" src={u.profilePicture} alt="" /> */}
-              <span className="chatMenuName">{u.username}</span>
-              {/* <span className="chatMenuId">{u._id}</span> */}
-            </div>
-          ))}
+          {users
+            .filter((u) => u._id !== user._id)
+            .map((u) => (
+              <div
+                className={`chatMenuFriend ${selectedUser === u ? "active" : ""}`}
+                key={u._id}
+                onClick={() => handleUserClick(u)}
+              >
+                <span className="chatMenuName">{u.username}</span>
+              </div>
+            ))}
         </div>
       </div>
-      <div className="chatBox"></div>
-      <div>
-        {/* Username is : {user.username} User ID is : {user._id} */}
+      <div className="chatBox">
+        {selectedUser && conversationId ? (
+          <div>Conversation ID: {conversationId}</div>
+        ) : (
+          <div>
+            {selectedUser
+              ? `No conversation with ${selectedUser.username} yet`
+              : "Select a user to start a conversation"}
+          </div>
+        )}
       </div>
       <div className="chatOnline">
+                <div>
+          Username is : {user.username} <br />
+          User ID is : {user._id}
+        </div>
       <input className="input" type="text" value={inputValue} onChange={handleInputChange}/>
         <button onClick={addGroup}>New Group</button>
         <tr className="groupChatList">
@@ -69,7 +103,7 @@ export default function Chat() {
           <td className="rectangle" key={groups.id}>{groups.name}</td>
         ))}
         </tr>
-      </div>
+        </div>
     </div>
   );
 }
