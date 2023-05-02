@@ -2,12 +2,42 @@ import "./messenger.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { socket } from "../../socket";
+import { ConnectionState } from "./ConnectionState";
+import { ConnectionManager } from "./ConnectionManager";
 
 export default function Chat() {
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [conversationId, setConversationId] = useState(null);
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [fooEvents, setFooEvents] = useState([]);
+
+  useEffect(() => {
+    function onConnect() {
+      setIsConnected(true);
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+    }
+
+    function onFooEvent(value) {
+      setFooEvents((previous) => [...previous, value]);
+    }
+
+    socket.connect()
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("foo", onFooEvent);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("foo", onFooEvent);
+    };
+  }, []);
 
   useEffect(() => {
     const userFromStorage = JSON.parse(localStorage.getItem("user"));
@@ -29,13 +59,15 @@ export default function Chat() {
   const handleUserClick = async (selectedUser) => {
     setSelectedUser(selectedUser);
     try {
-      const res = await axios.get(`/conversations/find/${user._id}/${selectedUser._id}`);
+      const res = await axios.get(
+        `/conversations/find/${user._id}/${selectedUser._id}`
+      );
       if (res.data) {
         setConversationId(res.data._id);
       } else {
         const newConversationRes = await axios.post("/conversations/direct", {
           senderId: user._id,
-          receiverId: selectedUser._id
+          receiverId: selectedUser._id,
         });
         setConversationId(newConversationRes.data._id);
       }
@@ -43,7 +75,6 @@ export default function Chat() {
       console.log(err);
     }
   };
-  
 
   return (
     <div className="chat">
@@ -54,7 +85,9 @@ export default function Chat() {
             .filter((u) => u._id !== user._id)
             .map((u) => (
               <div
-                className={`chatMenuFriend ${selectedUser === u ? "active" : ""}`}
+                className={`chatMenuFriend ${
+                  selectedUser === u ? "active" : ""
+                }`}
                 key={u._id}
                 onClick={() => handleUserClick(u)}
               >
@@ -64,6 +97,8 @@ export default function Chat() {
         </div>
       </div>
       <div className="chatBox">
+        <ConnectionState isConnected={isConnected} />
+        <ConnectionManager />
         {selectedUser && conversationId ? (
           <div>Conversation ID: {conversationId}</div>
         ) : (

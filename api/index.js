@@ -29,6 +29,18 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
 
+const frontendUrl = `http://localhost:${process.env.FRONTEND_PORT}`
+
+// create http server and initiate socket connection with the same http
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: frontendUrl
+  }
+});
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/images");
@@ -52,7 +64,30 @@ app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/conversations", conversationRoute);
 app.use("/api/messages", messageRoute);
+app.get("/", (req, res) => {
+  res.send({ msg: "Hello World!" })
+})
 
-app.listen(8800, () => {
+// middleware
+// io.use((socket, next) => {
+//   const username = socket.handshake.auth.username;
+//   if (!username) {
+//     return next(new Error("invalid username"));
+//   }
+//   socket.username = username;
+//   next();
+// });
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  // server emit to that user
+  socket.emit('message', 'Welcome to ChatRoom!')
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
+server.listen(process.env.BACKEND_PORT || 3000, () => {
   console.log("Backend server is running!");
 });
