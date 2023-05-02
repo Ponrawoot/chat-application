@@ -33,12 +33,17 @@ export default function Chat() {
       if (res.data) {
         setConversationId(res.data._id);
       } else {
-        setConversationId(null);
+        const newConversationRes = await axios.post("/conversations/direct", {
+          senderId: user._id,
+          receiverId: selectedUser._id
+        });
+        setConversationId(newConversationRes.data._id);
       }
     } catch (err) {
       console.log(err);
     }
   };
+  
 
   return (
     <div className="chat">
