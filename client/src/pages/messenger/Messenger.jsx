@@ -1,11 +1,16 @@
 import "./messenger.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom/cjs/react-router-dom.min";
-import {Link} from "react-router-dom";
 
 export default function Chat() {
   const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
+  
+  const [inputValue, setInputValue] = useState("");
+
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  }
 
   const [user, setUser] = useState("");
 
@@ -27,7 +32,14 @@ export default function Chat() {
     fetchUsers();
   }, []);
 
-
+  const addGroup = () => {
+    const newGroup = {
+      id: groups.length + 1,
+      name: inputValue
+    };
+    setGroups([...groups, newGroup]);
+    setInputValue('');
+  }
 
   return (
     <div className="chat">
@@ -45,12 +57,18 @@ export default function Chat() {
       </div>
       <div className="chatBox"></div>
       <div>
-        Username is : {user.username} User ID is : {user._id}
+        {/* Username is : {user.username} User ID is : {user._id} */}
       </div>
       <div className="chatOnline">
-        <button>
-        <Link to='/groupchat'>New room</Link>
-        </button>
+      <input className="input" type="text" value={inputValue} onChange={handleInputChange}/>
+        <button onClick={addGroup}>New Group</button>
+        <tr className="groupChatList">
+          <td className="rectangle">Group 21</td>
+          <td className="rectangle">GG</td>
+          {groups.map(groups => (
+          <td className="rectangle" key={groups.id}>{groups.name}</td>
+        ))}
+        </tr>
       </div>
     </div>
   );
