@@ -9,6 +9,7 @@ export default function Chat() {
   const [user, setUser] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [conversationId, setConversationId] = useState(null);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const userFromStorage = JSON.parse(localStorage.getItem("user"));
@@ -48,6 +49,8 @@ export default function Chat() {
       );
       if (res.data) {
         setConversationId(res.data._id);
+        const messagesRes = await axios.get(`/messages/${res.data._id}`);
+        setMessages(messagesRes.data);
       } else {
         const newConversationRes = await axios.post("/conversations/direct", {
           senderId: user._id,
@@ -59,12 +62,12 @@ export default function Chat() {
       console.log(err);
     }
   };
+  
 
   return (
     <div className="chat">
       <div className="chatMenu">
         <div className="chatMenuWrapper">
-          <input placeholder="Search for friends" className="chatMenuInput" />
           {users
             .filter((u) => u._id !== user._id)
             .map((u) => (
@@ -82,7 +85,20 @@ export default function Chat() {
       </div>
       <div className="chatBox">
         {selectedUser && conversationId ? (
-          <div>Conversation ID: {conversationId}</div>
+          <>
+            <div>Conversation ID: {conversationId}</div>
+            <div>
+            {messages.map((message) => (
+              <div key={message._id}>
+                {message.senderId === user._id ? (
+                  <div>Me: {message.text}</div>
+                ) : (
+                  <div>Other: {message.text}</div>
+                )}
+              </div>
+            ))}
+            </div>
+          </>
         ) : (
           <div>
             {selectedUser
@@ -91,6 +107,7 @@ export default function Chat() {
           </div>
         )}
       </div>
+
       <div className="chatOnline">
         <div>
           Username is : {user.username} <br />
