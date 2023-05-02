@@ -3,9 +3,17 @@ import { Search, Person, Chat, Notifications } from "@material-ui/icons";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { useHistory } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Topbar() {
   const { user } = useContext(AuthContext);
+  const history = useHistory();
+
+  useEffect(() => {
+    history.push(`/profile/${user.username}`);
+  }, [user.username]);
+
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
   return (
     <div className="topbarContainer">
