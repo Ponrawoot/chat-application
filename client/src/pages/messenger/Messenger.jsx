@@ -90,11 +90,7 @@ export default function Chat() {
             <div>
             {messages.map((message) => (
               <div key={message._id}>
-                {message.senderId === user._id ? (
-                  <div>Me: {message.text}</div>
-                ) : (
-                  <div>Other: {message.text}</div>
-                )}
+                <div>{message.text}</div>
               </div>
             ))}
             </div>
@@ -106,7 +102,17 @@ export default function Chat() {
               : "Select a user to start a conversation"}
           </div>
         )}
+        <div className="chatInput">
+          <input
+            className="input"
+            type="text"
+            placeholder="Type your message..."
+          />
+          <button>Send</button>
+          </div>
       </div>
+
+      
 
       <div className="chatOnline">
         <div>
