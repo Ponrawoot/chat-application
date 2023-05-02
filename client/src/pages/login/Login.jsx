@@ -4,18 +4,30 @@ import { loginCall } from "../../apiCalls";
 import { AuthContext } from "../../context/AuthContext";
 import { CircularProgress } from "@material-ui/core";
 
+
 export default function Login() {
   const email = useRef();
   const password = useRef();
   const { isFetching, dispatch } = useContext(AuthContext);
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
     e.preventDefault();
-    loginCall(
-      { email: email.current.value, password: password.current.value },
-      dispatch
-    );
+    try {
+      const userData = await loginCall(
+        { email: email.current.value, password: password.current.value },
+        dispatch
+      );
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem("user", JSON.stringify(userData.user)); // store the user object in local storage
+        //localStorage.setItem("userId", userData._id); // store the user id in local storage
+      } else {
+        console.log('localStorage is not supported');
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
+  
 
   return (
     <div className="login">

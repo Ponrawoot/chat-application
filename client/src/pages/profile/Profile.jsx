@@ -1,11 +1,9 @@
 import "./profile.css";
 import Topbar from "../../components/topbar/Topbar";
-import Sidebar from "../../components/sidebar/Sidebar";
-import Feed from "../../components/feed/Feed";
-import Rightbar from "../../components/rightbar/Rightbar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
@@ -16,6 +14,11 @@ export default function Profile() {
     const fetchUser = async () => {
       const res = await axios.get(`/users?username=${username}`);
       setUser(res.data);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem("user", JSON.stringify(res.data));
+      } else {
+        console.log('localStorage is not supported');
+      }
     };
     fetchUser();
   }, [username]);
@@ -24,7 +27,6 @@ export default function Profile() {
     <>
       <Topbar />
       <div className="profile">
-        <Sidebar />
         <div className="profileRight">
           <div className="profileRightTop">
             <div className="profileCover">
@@ -50,11 +52,11 @@ export default function Profile() {
             <div className="profileInfo">
               <h4 className="profileInfoName">{user.username}</h4>
               <span className="profileInfoDesc">{user.desc}</span>
+              <div className="profileInfoId">{user._id}</div> {/* add this line */}
+              <Link to="/messenger">
+              <button className="messageButton">Message</button>
+              </Link>
             </div>
-          </div>
-          <div className="profileRightBottom">
-            <Feed username={username} />
-            <Rightbar user={user} />
           </div>
         </div>
       </div>

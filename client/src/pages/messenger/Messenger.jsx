@@ -1,159 +1,88 @@
 import "./messenger.css";
-import Topbar from "../../components/topbar/Topbar";
-import Conversation from "../../components/conversations/Conversation";
-import Message from "../../components/message/Message";
-import ChatOnline from "../../components/chatOnline/ChatOnline";
-import { useContext, useEffect, useRef, useState } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { io } from "socket.io-client";
+import { Link } from "react-router-dom";
 
-export default function Messenger() {
-  const [conversations, setConversations] = useState([]);
-  const [currentChat, setCurrentChat] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const socket = useRef();
-  const { user } = useContext(AuthContext);
-  const scrollRef = useRef();
+export default function Chat() {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
 
   useEffect(() => {
-    socket.current = io("ws://localhost:8900");
-    socket.current.on("getMessage", (data) => {
-      setArrivalMessage({
-        sender: data.senderId,
-        text: data.text,
-        createdAt: Date.now(),
-      });
-    });
+    const userFromStorage = JSON.parse(localStorage.getItem("user"));
+    setUser(userFromStorage);
   }, []);
 
   useEffect(() => {
-    arrivalMessage &&
-      currentChat?.members.includes(arrivalMessage.sender) &&
-      setMessages((prev) => [...prev, arrivalMessage]);
-  }, [arrivalMessage, currentChat]);
-
-  useEffect(() => {
-    socket.current.emit("addUser", user._id);
-    socket.current.on("getUsers", (users) => {
-      setOnlineUsers(
-        user.followings.filter((f) => users.some((u) => u.userId === f))
-      );
-    });
-  }, [user]);
-
-  useEffect(() => {
-    const getConversations = async () => {
+    const fetchUsers = async () => {
       try {
-        const res = await axios.get("/conversations/" + user._id);
-        setConversations(res.data);
+        const res = await axios.get("/users/all");
+        setUsers(res.data);
       } catch (err) {
         console.log(err);
       }
     };
-    getConversations();
-  }, [user._id]);
+    fetchUsers();
+  }, []);
 
-  useEffect(() => {
-    const getMessages = async () => {
-      try {
-        const res = await axios.get("/messages/" + currentChat?._id);
-        setMessages(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getMessages();
-  }, [currentChat]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const message = {
-      sender: user._id,
-      text: newMessage,
-      conversationId: currentChat._id,
-    };
-
-    const receiverId = currentChat.members.find(
-      (member) => member !== user._id
-    );
-
-    socket.current.emit("sendMessage", {
-      senderId: user._id,
-      receiverId,
-      text: newMessage,
-    });
-
+  const handleUserClick = async (selectedUser) => {
+    setSelectedUser(selectedUser);
     try {
-      const res = await axios.post("/messages", message);
-      setMessages([...messages, res.data]);
-      setNewMessage("");
+      const res = await axios.get(`/conversations/find/${user._id}/${selectedUser._id}`);
+      if (res.data) {
+        setConversationId(res.data._id);
+      } else {
+        const newConversationRes = await axios.post("/conversations/direct", {
+          senderId: user._id,
+          receiverId: selectedUser._id
+        });
+        setConversationId(newConversationRes.data._id);
+      }
     } catch (err) {
       console.log(err);
     }
   };
-
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  
 
   return (
-    <>
-      <Topbar />
-      <div className="messenger">
-        <div className="chatMenu">
-          <div className="chatMenuWrapper">
-            <input placeholder="Search for friends" className="chatMenuInput" />
-            {conversations.map((c) => (
-              <div onClick={() => setCurrentChat(c)}>
-                <Conversation conversation={c} currentUser={user} />
+    <div className="chat">
+      <div className="chatMenu">
+        <div className="chatMenuWrapper">
+          <input placeholder="Search for friends" className="chatMenuInput" />
+          {users
+            .filter((u) => u._id !== user._id)
+            .map((u) => (
+              <div
+                className={`chatMenuFriend ${selectedUser === u ? "active" : ""}`}
+                key={u._id}
+                onClick={() => handleUserClick(u)}
+              >
+                <span className="chatMenuName">{u.username}</span>
               </div>
             ))}
-          </div>
-        </div>
-        <div className="chatBox">
-          <div className="chatBoxWrapper">
-            {currentChat ? (
-              <>
-                <div className="chatBoxTop">
-                  {messages.map((m) => (
-                    <div ref={scrollRef}>
-                      <Message message={m} own={m.sender === user._id} />
-                    </div>
-                  ))}
-                </div>
-                <div className="chatBoxBottom">
-                  <textarea
-                    className="chatMessageInput"
-                    placeholder="write something..."
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    value={newMessage}
-                  ></textarea>
-                  <button className="chatSubmitButton" onClick={handleSubmit}>
-                    Send
-                  </button>
-                </div>
-              </>
-            ) : (
-              <span className="noConversationText">
-                Open a conversation to start a chat.
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="chatOnline">
-          <div className="chatOnlineWrapper">
-            <ChatOnline
-              onlineUsers={onlineUsers}
-              currentId={user._id}
-              setCurrentChat={setCurrentChat}
-            />
-          </div>
         </div>
       </div>
-    </>
+      <div className="chatBox">
+        {selectedUser && conversationId ? (
+          <div>Conversation ID: {conversationId}</div>
+        ) : (
+          <div>
+            {selectedUser
+              ? `No conversation with ${selectedUser.username} yet`
+              : "Select a user to start a conversation"}
+          </div>
+        )}
+      </div>
+      <div className="chatOnline">
+        <button>
+          <Link to="/groupchat">New room</Link>
+        </button>
+        <div>
+          Username is : {user.username} <br />
+          User ID is : {user._id}
+        </div>
+      </div>
+    </div>
   );
 }
