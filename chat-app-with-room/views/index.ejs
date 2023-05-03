@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Chat App</title>
+    <script defer src="http://localhost:4000/socket.io/socket.io.js"></script>
+    <script defer src="script.js"></script>
+    <style>
+      #button {
+        background-color: #4caf50; /* Set the background color */
+        border: none; /* Remove border */
+        color: white; /* Set text color to white */
+        padding: 15px 32px; /* Set padding */
+        text-align: center; /* Center text */
+        text-decoration: none; /* Remove underline */
+        display: inline-block; /* Set as inline block */
+        font-size: 16px; /* Set font size */
+        border-radius: 4px; /* Set border radius */
+        cursor: pointer; /* Add cursor pointer */
+        transition-duration: 0.4s; /* Add transition */
+      }
+
+      /* Hover effect */
+      #button:hover {
+        background-color: #3e8e41;
+        color: white;
+      }
+
+      #button-room {
+        background-color: #CCC; /* Set the background color */
+        border: none; /* Remove border */
+        color: black; /* Set text color to white */
+        padding: 15px 32px; /* Set padding */
+        text-align: center; /* Center text */
+        text-decoration: none; /* Remove underline */
+        display: inline-block; /* Set as inline block */
+        font-size: 16px; /* Set font size */
+        border-radius: 4px; /* Set border radius */
+        cursor: pointer; /* Add cursor pointer */
+        transition-duration: 0.4s; /* Add transition */
+      }
+
+      /* Hover effect */
+      #button-room:hover {
+        background-color: grey;
+        color: white;
+      }
+
+      #input {
+        padding: 10px 20px; /* Set padding */
+        font-size: 16px; /* Set font size */
+        border: none; /* Remove border */
+        border-radius: 4px; /* Set border radius */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add shadow effect */
+        transition: box-shadow 0.2s ease-in-out; /* Add transition */
+      }
+
+      #input:focus {
+        outline: none; /* Remove default outline */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Add focus shadow effect */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="room-container">
+      <h1>CHAT ROOM</h1>
+      <% Object.keys(rooms).forEach(room => { %>
+      <a href="/<%= room %>">
+        <button id="button-room">
+          <tr>
+            <td>
+              <div>
+                <h3><%= room %></h3>
+              </div>
+            </td>
+            <td>Click to join</td>
+          </tr>
+        </button>
+      </a>
+      <% }) %>
+    </div>
+    <form action="/room" method="POST">
+      <input name="room" type="text" required id="input" />
+      <button type="submit" id="button">New Room</button>
+    </form>
+  </body>
+</html>
