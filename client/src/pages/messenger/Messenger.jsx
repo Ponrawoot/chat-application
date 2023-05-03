@@ -1,7 +1,7 @@
 import "./messenger.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from 'react-router-dom'
+
 
 export default function Chat() {
   const [users, setUsers] = useState([]);
@@ -12,6 +12,7 @@ export default function Chat() {
   const [conversationId, setConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+
 
 
   const sendMessage = async () => {
@@ -129,8 +130,10 @@ export default function Chat() {
             {messages.map((message) => (
               <div key={message._id}>
                 <div>{message.text}</div>
+                <div style={{color:"gray",fontSize:"small"}}>at {message.createdAt}</div>
               </div>
             ))}
+
             </div>
           </>
         ) : (
@@ -149,7 +152,10 @@ export default function Chat() {
             onChange={(e) => setMessageInput(e.target.value)}
           />
 
-          <button onClick={sendMessage}>Send</button>
+        <button onClick={() => {
+           sendMessage();
+        }}>Send</button>
+
 
           </div>
       </div>
